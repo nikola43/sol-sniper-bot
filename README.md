@@ -1,5 +1,3 @@
-# SPL SNIPER BOT
-
 ![](https://github.com/vittal1964/sol-sniper-bot/blob/d3c083d871ee79d95adb3689392412cd28fb31e6/readme/spl.png)
 
 **Solana SPL Token Sniper Bot** that listens to new Raydium USDC or SOL pools and buys tokens for a fixed amount in USDC/SOL.
