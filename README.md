@@ -37,14 +37,13 @@ To run the script you need to:
 7. `COMMITMENT_LEVEL`
 8. `CHECK_IF_IS_BURNED` (liquidity burn check)
 9. `CHECK_IF_IS_LOCKED` (liquidity lock check)
-10. `RUG_SCORE_MAX` (rugcheck.xyz score)
-11. `USE_SNIPE_LIST` (buy only tokens listed in snipe-list.txt)
-12. `SNIPE_LIST_REFRESH_INTERVAL` (how often snipe list should be refreshed in milliseconds)
-13. `CHECK_IF_MINT_IS_RENOUNCED` (script will buy only if mint is renounced)
-14. `MIN_POOL_SIZE` (script will buy only if pool size is greater than specified amount)
-15. `TAKE_PROFIT=300` (in %)
-16. `STOP_LOSS=50` (in %)
-17. `BIRDEYE_API_KEY=` (TP/SL, Burn/Lock) generate here : https://birdeye.so/user/profile#security
+10. `USE_SNIPE_LIST` (buy only tokens listed in snipe-list.txt)
+11. `SNIPE_LIST_REFRESH_INTERVAL` (how often snipe list should be refreshed in milliseconds)
+12. `CHECK_IF_MINT_IS_RENOUNCED` (script will buy only if mint is renounced)
+13. `MIN_POOL_SIZE` (script will buy only if pool size is greater than specified amount)
+14. `TAKE_PROFIT=300` (in %)
+15. `STOP_LOSS=50` (in %)
+16. `BIRDEYE_API_KEY=` (TP/SL, Burn/Lock) generate here : https://birdeye.so/user/profile#security
 
 ![](https://github.com/vittal1964/sol-sniper-bot/blob/d3c083d871ee79d95adb3689392412cd28fb31e6/readme/env.png)
   
