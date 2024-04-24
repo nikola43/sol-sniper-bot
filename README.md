@@ -1,4 +1,4 @@
-# SOLANA SNIPER BOT
+# SPL SNIPER BOT
 
 ![](https://github.com/bot.png)
 
@@ -17,7 +17,7 @@ Depending on the speed of the RPC node, the purchase usually happens before the 
 > [!NOTE]
 > This is provided as is, for learning purposes.
 
-## 👾 SETUP
+## SETUP
 To run the script you need to:
 1. Create a new empty Solana wallet
 2. Transfer some SOL to it
@@ -27,7 +27,7 @@ To run the script you need to:
 
 ![](https://github.com/jupiterwrap.png)
 
-## 🚀 CONFIG
+## CONFIG
 1. Configure the script by updating `.env.copy` file (**remove the .copy from the file name when done**).
 2. `PRIVATE_KEY` (your wallet private key)
 3. `RPC_ENDPOINT` (https RPC endpoint)
@@ -48,23 +48,23 @@ To run the script you need to:
 
 ![](https://github.com/botenv.png)
   
-## 🛸 INSTALL
+## INSTALL
 1. Install dependencies by typing: `npm install`
 2. Run the script by typing: `npm run buy` in terminal
 
 ![](https://github.com/preview.png)
 
-## 🛰 TAKE PROFIT
+## TAKE PROFIT
 
 > [!NOTE]
 > By default, 200 %
 
-## 🎇 STOP LOSS
+## STOP LOSS
 
 > [!NOTE]
 > By default, 80 %
 
-## 🌌 AUTO SELL
+## AUTO SELL
 By default, auto sell is enabled. If you want to disable it, you need to:
 1. Change variable `AUTO_SELL` to `false`
 2. Update `MAX_SELL_RETRIES` to set the maximum number of retries for selling token
@@ -75,7 +75,7 @@ There is no guarantee that the token will be sold at a profit or even sold at al
 
 ![](https://github.com/token.png)
 
-## 👾 SNIPE LIST
+## SNIPE LIST
 By default, script buys each token which has a new liquidity pool created and open for trading. 
 There are scenarios when you want to buy one specific token as soon as possible during the launch event.
 To achieve this, you'll have to use snipe list.
@@ -91,7 +91,7 @@ It will buy only when new pool is open for trading. If you want to buy token tha
 ![](https://github.com/snipelist.png)
 
 
-## 🚀 COMMON ISSUES
+## COMMON ISSUES
 
 > [!IMPORTANT]
 > If you have an error which is not listed here, please create a new issue in this repository.
@@ -112,10 +112,10 @@ It will buy only when new pool is open for trading. If you want to buy token tha
 > it means that wallet you provided doesn't have USDC/WSOL token account.
 > FIX: Go to dex and swap some SOL to USDC/WSOL. When you swap sol to wsol you should see it in wallet.
 
-## 🛸 CONTACT
+## CONTACT
 Discord: `@`
 
-## 🛰 DISCLAIMER
+## DISCLAIMER
 
 > [!IMPORTANT]
 > Use this script at your own risk.
