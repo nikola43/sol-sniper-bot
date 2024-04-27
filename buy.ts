@@ -595,7 +595,6 @@ const runListener = async () => {
   } catch (e) {
     logger.error(e, 'runListener');
   }
-
 };
 
 runListener();
