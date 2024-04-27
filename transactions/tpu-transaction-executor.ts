@@ -27,14 +27,14 @@ export class TpuTransactionExecutor implements TransactionExecutor {
                 library: 'tpu_client', // key
                 path: "/Users/kasiopea/dev/rust/tpu-sol-test/target/aarch64-apple-darwin/release/libtpu_client.dylib" // path
             })
-            const rpcUrl = "https://api.mainnet-beta.solana.com"
-            const wsUrl = "wss://api.mainnet-beta.solana.com"
+            const RPC_ENDPOINT="http://asgard-47bd5d56.thornode.io/569f6823761f718d22bfa465614bbf88"
+            const RPC_WEBSOCKET_ENDPOINT="ws://asgard-47bd5d56.thornode.io/569f6823761f718d22bfa465614bbf88"
             result = load({
                 library: "tpu_client", // path to the dynamic library file
                 funcName: 'send_tpu_tx', // the name of the function to call
                 retType: DataType.Boolean, // the return value type
                 paramsType: [DataType.String, DataType.String, DataType.U8Array, DataType.I32], // the parameter types
-                paramsValue: [rpcUrl, wsUrl, serializedTransaction, serializedTransaction.length] // the actual parameter values
+                paramsValue: [RPC_ENDPOINT, RPC_WEBSOCKET_ENDPOINT, serializedTransaction, serializedTransaction.length] // the actual parameter values
             })
             console.log({
                 result

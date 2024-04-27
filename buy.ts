@@ -296,7 +296,7 @@ async function buy(accountId: PublicKey, accountData: LiquidityStateV4): Promise
     }).compileToV0Message();
     const transaction = new VersionedTransaction(messageV0);
     transaction.sign([wallet, ...innerTransaction.signers]);
-    const rawTransaction = transaction.serialize();
+    // const rawTransaction = transaction.serialize();
     const txResult = await transactionExecutor.executeAndConfirm(transaction, wallet, latestBlockhash, false);
     const confirmed = txResult.confirmed;
     const signature = txResult.signature!;
