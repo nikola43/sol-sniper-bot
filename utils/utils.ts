@@ -5,7 +5,7 @@ import { res } from 'pino-std-serializers';
 import { Logger } from 'pino';
 
 import { Keypair, Connection, SlotInfo, clusterApiUrl, SystemProgram, PublicKey, Transaction } from '@solana/web3.js';
-import fs from 'fs/promises'; 
+import fs from 'fs/promises';
 import winston from 'winston';
 import { BehaviorSubject } from 'rxjs';
 import bs58 from 'bs58';
@@ -108,7 +108,7 @@ export const retrieveTokenValueByAddressBirdeye = async (tokenAddress: string) =
     if (response) return parseFloat(response)
     return undefined;
   } catch (e) {
-    return undefined;  
+    return undefined;
   }
 }
 
@@ -174,7 +174,6 @@ export const retrieveTokenValueByAddress = async (tokenAddress: string) => {
   const birdEyePrice = await retrieveTokenValueByAddressBirdeye(tokenAddress);
   if (birdEyePrice) return birdEyePrice;
   return undefined;
-  
 }
 
 export const retry = async <T>(
