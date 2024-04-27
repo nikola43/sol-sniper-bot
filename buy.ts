@@ -28,13 +28,14 @@ import {
 } from '@solana/web3.js';
 import { getTokenAccounts, RAYDIUM_LIQUIDITY_PROGRAM_ID_V4, OPENBOOK_PROGRAM_ID, createPoolKeys } from './liquidity';
 import { retry } from './utils';
-import { retrieveEnvVariable, retrieveTokenValueByAddress} from './utils';
+import { retrieveEnvVariable, retrieveTokenValueByAddress } from './utils';
 import { getMinimalMarketV3, MinimalMarketLayoutV3 } from './market';
 import { MintLayout } from './types';
 import pino from 'pino';
 import bs58 from 'bs58';
 import * as fs from 'fs';
 import * as path from 'path';
+import { DefaultTransactionExecutor, JitoTransactionExecutor, TpuTransactionExecutor, TransactionExecutor, WarpTransactionExecutor } from './transactions';
 
 const transport = pino.transport({
   targets: [
@@ -92,6 +93,7 @@ let quoteTokenAssociatedAddress: PublicKey;
 let quoteAmount: TokenAmount;
 let quoteMinPoolSizeAmount: TokenAmount;
 let commitment: Commitment = retrieveEnvVariable('COMMITMENT_LEVEL', logger) as Commitment;
+let transactionExecutor: TransactionExecutor;
 
 const TAKE_PROFIT = Number(retrieveEnvVariable('TAKE_PROFIT', logger));
 const STOP_LOSS = Number(retrieveEnvVariable('STOP_LOSS', logger));
@@ -101,6 +103,8 @@ const SNIPE_LIST_REFRESH_INTERVAL = Number(retrieveEnvVariable('SNIPE_LIST_REFRE
 const AUTO_SELL = retrieveEnvVariable('AUTO_SELL', logger) === 'true';
 const MAX_SELL_RETRIES = Number(retrieveEnvVariable('MAX_SELL_RETRIES', logger));
 const MIN_POOL_SIZE = retrieveEnvVariable('MIN_POOL_SIZE', logger);
+const TRANSACTION_EXECUTOR = retrieveEnvVariable('TRANSACTION_EXECUTOR', logger);
+const CUSTOM_FEE = retrieveEnvVariable('CUSTOM_FEE', logger);
 
 let snipeList: string[] = [];
 
@@ -161,6 +165,24 @@ async function init(): Promise<void> {
   }
 
   quoteTokenAssociatedAddress = tokenAccount.pubkey;
+  console.log(TRANSACTION_EXECUTOR)
+  switch (TRANSACTION_EXECUTOR) {
+    case 'tpu': {
+      transactionExecutor = new TpuTransactionExecutor()
+      break;
+    }
+    case 'warp': {
+      transactionExecutor = new WarpTransactionExecutor(CUSTOM_FEE)
+      break;
+    }
+    case 'jito': {
+      transactionExecutor = new JitoTransactionExecutor(CUSTOM_FEE, solanaConnection);
+      break;
+    }
+    default: {
+      transactionExecutor = new DefaultTransactionExecutor(solanaConnection);
+    }
+  }
 
   // load tokens to snipe
   loadSnipeList();
@@ -275,22 +297,27 @@ async function buy(accountId: PublicKey, accountData: LiquidityStateV4): Promise
     const transaction = new VersionedTransaction(messageV0);
     transaction.sign([wallet, ...innerTransaction.signers]);
     const rawTransaction = transaction.serialize();
-    const signature = await retry(
-    () =>
-      solanaConnection.sendRawTransaction(rawTransaction, {
-        skipPreflight: true,
-      }),
-    { retryIntervalMs: 10, retries: 50 }, // TODO handle retries more efficiently
-  );
-    logger.info({ mint: accountData.baseMint, signature }, `Sent buy tx`);
-    const confirmation = await solanaConnection.confirmTransaction(
-      {
-        signature,
-        lastValidBlockHeight: latestBlockhash.lastValidBlockHeight,
-        blockhash: latestBlockhash.blockhash,
-      },
-      commitment,
-    );
+    const txResult = await transactionExecutor.executeAndConfirm(transaction, wallet, latestBlockhash, false);
+    const confirmed = txResult.confirmed;
+    const signature = txResult.signature!;
+    const txError = txResult.error
+
+    //   const signature = await retry(
+    //   () =>
+    //     solanaConnection.sendRawTransaction(rawTransaction, {
+    //       skipPreflight: true,
+    //     }),
+    //   { retryIntervalMs: 10, retries: 50 }, // TODO handle retries more efficiently
+    // );
+    //   logger.info({ mint: accountData.baseMint, signature }, `Sent buy tx`);
+    // const confirmation = await solanaConnection.confirmTransaction(
+    //   {
+    //     signature,
+    //     lastValidBlockHeight: latestBlockhash.lastValidBlockHeight,
+    //     blockhash: latestBlockhash.blockhash,
+    //   },
+    //   commitment,
+    // );
     const basePromise = solanaConnection.getTokenAccountBalance(accountData.baseVault, commitment);
     const quotePromise = solanaConnection.getTokenAccountBalance(accountData.quoteVault, commitment);
 
@@ -301,7 +328,7 @@ async function buy(accountId: PublicKey, accountData: LiquidityStateV4): Promise
 
     if (baseValue?.value?.uiAmount && quoteValue?.value?.uiAmount)
       tokenAccount.buyValue = quoteValue?.value?.uiAmount / baseValue?.value?.uiAmount;
-    if (!confirmation.value.err) {
+    if (confirmed) {
       logger.info(
         {
           signature,
@@ -311,7 +338,7 @@ async function buy(accountId: PublicKey, accountData: LiquidityStateV4): Promise
         `Confirmed buy tx... Bought at: ${tokenAccount.buyValue} SOL`,
       );
     } else {
-      logger.debug(confirmation.value.err);
+      logger.debug(txError);
       logger.info({ mint: accountData.baseMint, signature }, `Error confirming buy tx`);
     }
   } catch (e) {
@@ -378,7 +405,7 @@ async function sell(accountId: PublicKey, mint: PublicKey, amount: BigNumberish,
           createCloseAccountInstruction(tokenAccount.address, wallet.publicKey, wallet.publicKey),
         ],
       }).compileToV0Message();
-      
+
       const transaction = new VersionedTransaction(messageV0);
       transaction.sign([wallet, ...innerTransaction.signers]);
       const signature = await solanaConnection.sendRawTransaction(transaction.serialize(), {
@@ -527,12 +554,12 @@ const runListener = async () => {
         }
         let completed = false;
         while (!completed) {
-          setTimeout(() => {}, 1000);
+          setTimeout(() => { }, 1000);
           const currValue = await retrieveTokenValueByAddress(accountData.mint.toBase58());
           if (currValue) {
             logger.info(accountData.mint, `Current Price: ${currValue} SOL`);
             completed = await sell(updatedAccountInfo.accountId, accountData.mint, accountData.amount, currValue);
-          } 
+          }
         }
       },
       commitment,
