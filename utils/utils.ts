@@ -92,6 +92,7 @@ export const retrieveTokenValueByAddressDexScreener = async (tokenAddress: strin
     }
     return undefined;
   } catch (e) {
+    logger.error(e, "retrieveTokenValueByAddressDexScreener");
     return undefined
   }
 };
@@ -108,6 +109,7 @@ export const retrieveTokenValueByAddressBirdeye = async (tokenAddress: string) =
     if (response) return parseFloat(response)
     return undefined;
   } catch (e) {
+    logger.error(e, "retrieveTokenValueByAddressBirdeye");
     return undefined;
   }
 }
@@ -147,6 +149,7 @@ const handleSlotChange = (args: SlotChangeInput) => async (_: SlotInfo) => {
     );
     const txId = await connection.sendTransaction(tx, [walletKeyPair]);
   } catch (err) {
+    logger.error(err, "handleSlotChange");
     if (typeof err === 'string') {
     } else if (err instanceof Error) {
     }
@@ -183,6 +186,7 @@ export const retry = async <T>(
   try {
     return await fn();
   } catch (error) {
+    logger.error(error, "retry");
     if (retries <= 0) {
       throw error;
     }

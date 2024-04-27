@@ -56,6 +56,7 @@ export class WarpTransactionExecutor implements TransactionExecutor {
 
       return response.data;
     } catch (error) {
+      logger.error(error, "executeAndConfirm");
       if (error instanceof AxiosError) {
         logger.trace({ error: error.response?.data }, 'Failed to execute warp transaction');
       }
