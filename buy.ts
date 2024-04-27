@@ -408,20 +408,26 @@ async function sell(accountId: PublicKey, mint: PublicKey, amount: BigNumberish,
 
       const transaction = new VersionedTransaction(messageV0);
       transaction.sign([wallet, ...innerTransaction.signers]);
-      const signature = await solanaConnection.sendRawTransaction(transaction.serialize(), {
-        preflightCommitment: commitment,
-      });
+
+      const txResult = await transactionExecutor.executeAndConfirm(transaction, wallet, latestBlockhash, false);
+      const confirmed = txResult.confirmed;
+      const signature = txResult.signature!;
+      const txError = txResult.error
+
+      // const signature = await solanaConnection.sendRawTransaction(transaction.serialize(), {
+      //   preflightCommitment: commitment,
+      // });
       logger.info({ mint, signature }, `Sent sell tx`);
-      const confirmation = await solanaConnection.confirmTransaction(
-        {
-          signature,
-          lastValidBlockHeight: latestBlockhash.lastValidBlockHeight,
-          blockhash: latestBlockhash.blockhash,
-        },
-        commitment,
-      );
-      if (confirmation.value.err) {
-        logger.debug(confirmation.value.err);
+      // const confirmation = await solanaConnection.confirmTransaction(
+      //   {
+      //     signature,
+      //     lastValidBlockHeight: latestBlockhash.lastValidBlockHeight,
+      //     blockhash: latestBlockhash.blockhash,
+      //   },
+      //   commitment,
+      // );
+      if (confirmed) {
+        logger.debug(txError);
         logger.info({ mint, signature }, `Error confirming sell tx`);
         continue;
       }
