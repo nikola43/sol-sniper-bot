@@ -491,106 +491,111 @@ function shouldBuy(key: string): boolean {
 const runListener = async () => {
   await init();
   const runTimestamp = Math.floor(new Date().getTime() / 1000);
-  const raydiumSubscriptionId = solanaConnection.onProgramAccountChange(
-    RAYDIUM_LIQUIDITY_PROGRAM_ID_V4,
-    async (updatedAccountInfo) => {
-      const key = updatedAccountInfo.accountId.toString();
-      const poolState = LIQUIDITY_STATE_LAYOUT_V4.decode(updatedAccountInfo.accountInfo.data);
-      const poolOpenTime = parseInt(poolState.poolOpenTime.toString());
-      const existing = existingLiquidityPools.has(key);
-
-      if (poolOpenTime > runTimestamp && !existing) {
-        existingLiquidityPools.add(key);
-        const _ = processRaydiumPool(updatedAccountInfo.accountId, poolState);
-      }
-    },
-    commitment,
-    [
-      { dataSize: LIQUIDITY_STATE_LAYOUT_V4.span },
-      {
-        memcmp: {
-          offset: LIQUIDITY_STATE_LAYOUT_V4.offsetOf('quoteMint'),
-          bytes: quoteToken.mint.toBase58(),
-        },
-      },
-      {
-        memcmp: {
-          offset: LIQUIDITY_STATE_LAYOUT_V4.offsetOf('marketProgramId'),
-          bytes: OPENBOOK_PROGRAM_ID.toBase58(),
-        },
-      },
-      {
-        memcmp: {
-          offset: LIQUIDITY_STATE_LAYOUT_V4.offsetOf('status'),
-          bytes: bs58.encode([6, 0, 0, 0, 0, 0, 0, 0]),
-        },
-      },
-    ],
-  );
-
-  const openBookSubscriptionId = solanaConnection.onProgramAccountChange(
-    OPENBOOK_PROGRAM_ID,
-    async (updatedAccountInfo) => {
-      const key = updatedAccountInfo.accountId.toString();
-      const existing = existingOpenBookMarkets.has(key);
-      if (!existing) {
-        existingOpenBookMarkets.add(key);
-        const _ = processOpenBookMarket(updatedAccountInfo);
-      }
-    },
-    commitment,
-    [
-      { dataSize: MARKET_STATE_LAYOUT_V3.span },
-      {
-        memcmp: {
-          offset: MARKET_STATE_LAYOUT_V3.offsetOf('quoteMint'),
-          bytes: quoteToken.mint.toBase58(),
-        },
-      },
-    ],
-  );
-
-  if (AUTO_SELL) {
-    const walletSubscriptionId = solanaConnection.onProgramAccountChange(
-      TOKEN_PROGRAM_ID,
+  try {
+    const raydiumSubscriptionId = solanaConnection.onProgramAccountChange(
+      RAYDIUM_LIQUIDITY_PROGRAM_ID_V4,
       async (updatedAccountInfo) => {
-        const accountData = AccountLayout.decode(updatedAccountInfo.accountInfo!.data);
-        if (updatedAccountInfo.accountId.equals(quoteTokenAssociatedAddress)) {
-          return;
-        }
-        let completed = false;
-        while (!completed) {
-          setTimeout(() => { }, 1000);
-          const currValue = await retrieveTokenValueByAddress(accountData.mint.toBase58());
-          if (currValue) {
-            logger.info(accountData.mint, `Current Price: ${currValue} SOL`);
-            completed = await sell(updatedAccountInfo.accountId, accountData.mint, accountData.amount, currValue);
-          }
+        const key = updatedAccountInfo.accountId.toString();
+        const poolState = LIQUIDITY_STATE_LAYOUT_V4.decode(updatedAccountInfo.accountInfo.data);
+        const poolOpenTime = parseInt(poolState.poolOpenTime.toString());
+        const existing = existingLiquidityPools.has(key);
+
+        if (poolOpenTime > runTimestamp && !existing) {
+          existingLiquidityPools.add(key);
+          const _ = processRaydiumPool(updatedAccountInfo.accountId, poolState);
         }
       },
       commitment,
       [
+        { dataSize: LIQUIDITY_STATE_LAYOUT_V4.span },
         {
-          dataSize: 165,
+          memcmp: {
+            offset: LIQUIDITY_STATE_LAYOUT_V4.offsetOf('quoteMint'),
+            bytes: quoteToken.mint.toBase58(),
+          },
         },
         {
           memcmp: {
-            offset: 32,
-            bytes: wallet.publicKey.toBase58(),
+            offset: LIQUIDITY_STATE_LAYOUT_V4.offsetOf('marketProgramId'),
+            bytes: OPENBOOK_PROGRAM_ID.toBase58(),
+          },
+        },
+        {
+          memcmp: {
+            offset: LIQUIDITY_STATE_LAYOUT_V4.offsetOf('status'),
+            bytes: bs58.encode([6, 0, 0, 0, 0, 0, 0, 0]),
           },
         },
       ],
     );
 
-    logger.info(`Listening for wallet changes: ${walletSubscriptionId}`);
+    const openBookSubscriptionId = solanaConnection.onProgramAccountChange(
+      OPENBOOK_PROGRAM_ID,
+      async (updatedAccountInfo) => {
+        const key = updatedAccountInfo.accountId.toString();
+        const existing = existingOpenBookMarkets.has(key);
+        if (!existing) {
+          existingOpenBookMarkets.add(key);
+          const _ = processOpenBookMarket(updatedAccountInfo);
+        }
+      },
+      commitment,
+      [
+        { dataSize: MARKET_STATE_LAYOUT_V3.span },
+        {
+          memcmp: {
+            offset: MARKET_STATE_LAYOUT_V3.offsetOf('quoteMint'),
+            bytes: quoteToken.mint.toBase58(),
+          },
+        },
+      ],
+    );
+
+    if (AUTO_SELL) {
+      const walletSubscriptionId = solanaConnection.onProgramAccountChange(
+        TOKEN_PROGRAM_ID,
+        async (updatedAccountInfo) => {
+          const accountData = AccountLayout.decode(updatedAccountInfo.accountInfo!.data);
+          if (updatedAccountInfo.accountId.equals(quoteTokenAssociatedAddress)) {
+            return;
+          }
+          let completed = false;
+          while (!completed) {
+            setTimeout(() => { }, 1000);
+            const currValue = await retrieveTokenValueByAddress(accountData.mint.toBase58());
+            if (currValue) {
+              logger.info(accountData.mint, `Current Price: ${currValue} SOL`);
+              completed = await sell(updatedAccountInfo.accountId, accountData.mint, accountData.amount, currValue);
+            }
+          }
+        },
+        commitment,
+        [
+          {
+            dataSize: 165,
+          },
+          {
+            memcmp: {
+              offset: 32,
+              bytes: wallet.publicKey.toBase58(),
+            },
+          },
+        ],
+      );
+
+      logger.info(`Listening for wallet changes: ${walletSubscriptionId}`);
+    }
+
+    logger.info(`Listening for raydium changes: ${raydiumSubscriptionId}`);
+    logger.info(`Listening for open book changes: ${openBookSubscriptionId}`);
+
+    if (USE_SNIPE_LIST) {
+      setInterval(loadSnipeList, SNIPE_LIST_REFRESH_INTERVAL);
+    }
+  } catch (e) {
+    logger.error(e, 'runListener');
   }
 
-  logger.info(`Listening for raydium changes: ${raydiumSubscriptionId}`);
-  logger.info(`Listening for open book changes: ${openBookSubscriptionId}`);
-
-  if (USE_SNIPE_LIST) {
-    setInterval(loadSnipeList, SNIPE_LIST_REFRESH_INTERVAL);
-  }
 };
 
 runListener();
