@@ -9,7 +9,6 @@ Depending on the speed of the RPC node, the purchase usually happens before the 
 - `Min Liq`
 - `Burn/Lock Check`
 - `Renounce Check`
-- `Rug Score Check`
 - `Fast Buy`
 
 > [!NOTE]
@@ -105,7 +104,7 @@ It will buy only when new pool is open for trading. If you want to buy token tha
 > 
 > ### NO TOKEN ACCOUNT
 > If you see following error in your log file:  
-> `Error: No SOL token account found in wallet: `  
+> `Error: No SOL token account found in wallet:`  
 > it means that wallet you provided doesn't have USDC/WSOL token account.
 > FIX: Go to dex and swap some SOL to USDC/WSOL. When you swap sol to wsol you should see it in wallet.
 
