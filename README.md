@@ -72,7 +72,7 @@ There is no guarantee that the token will be sold at a profit or even sold at al
 ![](https://github.com/vittal1964/sol-sniper-bot/blob/d3c083d871ee79d95adb3689392412cd28fb31e6/readme/token.png)
 
 ## SNIPE LIST
-By default, script buys each token which has a new liquidity pool created and open for trading. 
+By default, script buys each token which has a new liquidity pool created and open for trading.
 There are scenarios when you want to buy one specific token as soon as possible during the launch event.
 To achieve this, you'll have to use snipe list.
 1. Change variable `USE_SNIPE_LIST` to `true` 
