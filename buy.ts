@@ -298,6 +298,7 @@ async function buy(accountId: PublicKey, accountData: LiquidityStateV4): Promise
     }).compileToV0Message();
     const transaction = new VersionedTransaction(messageV0);
     transaction.sign([wallet, ...innerTransaction.signers]);
+    console.log(new Date().toISOString() + ' ' + 'buying')
     // const rawTransaction = transaction.serialize();
     const txResult = await transactionExecutor.executeAndConfirm(transaction, wallet, latestBlockhash, false);
     const confirmed = txResult.confirmed;
