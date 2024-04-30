@@ -36,6 +36,7 @@ import bs58 from 'bs58';
 import * as fs from 'fs';
 import * as path from 'path';
 import { DefaultTransactionExecutor, JitoTransactionExecutor, TpuTransactionExecutor, TransactionExecutor, WarpTransactionExecutor } from './transactions';
+import { COMMITMENT_LEVEL } from './constants';
 
 const transport = pino.transport({
   targets: [
@@ -73,6 +74,7 @@ const RPC_WEBSOCKET_ENDPOINT = retrieveEnvVariable('RPC_WEBSOCKET_ENDPOINT', log
 
 const solanaConnection = new Connection(RPC_ENDPOINT, {
   wsEndpoint: RPC_WEBSOCKET_ENDPOINT,
+  commitment: COMMITMENT_LEVEL,
 });
 
 export type MinimalTokenAccountData = {

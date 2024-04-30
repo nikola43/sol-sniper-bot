@@ -4,10 +4,12 @@ import {
     VersionedTransaction
 } from '@solana/web3.js';
 import { AxiosError } from 'axios';
-import { logger } from '../buy';
+
 import { TransactionExecutor } from './transaction-executor.interface';
 import { load, DataType, open, close } from 'ffi-rs';
 import bs58 from 'bs58';
+import { logger } from '../buy';
+
 
 export class TpuTransactionExecutor implements TransactionExecutor {
 
@@ -25,10 +27,10 @@ export class TpuTransactionExecutor implements TransactionExecutor {
         try {
             open({
                 library: 'tpu_client', // key
-                path: "/Users/kasiopea/dev/rust/tpu-sol-test/target/aarch64-apple-darwin/release/libtpu_client.dylib" // path
+                path: "/home/tesladreams/tpu_client/target/release/libtpu_client.so" // path
             })
-            const RPC_ENDPOINT="http://127.0.0.1:8899"
-            const RPC_WEBSOCKET_ENDPOINT="ws://127.0.0.1:8900"
+            const RPC_ENDPOINT = "http://127.0.0.1:8899"
+            const RPC_WEBSOCKET_ENDPOINT = "ws://127.0.0.1:8900"
 
 
             result = load({
@@ -39,7 +41,8 @@ export class TpuTransactionExecutor implements TransactionExecutor {
                 paramsValue: [RPC_ENDPOINT, RPC_WEBSOCKET_ENDPOINT, serializedTransaction, serializedTransaction.length] // the actual parameter values
             })
             console.log({
-                result
+                result,
+                signatureBase58
             })
         } catch (error) {
             logger.error(error, "executeAndConfirm");
