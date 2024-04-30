@@ -27,8 +27,10 @@ export class TpuTransactionExecutor implements TransactionExecutor {
                 library: 'tpu_client', // key
                 path: "/Users/kasiopea/dev/rust/tpu-sol-test/target/aarch64-apple-darwin/release/libtpu_client.dylib" // path
             })
-            const RPC_ENDPOINT="http://asgard-47bd5d56.thornode.io/569f6823761f718d22bfa465614bbf88"
-            const RPC_WEBSOCKET_ENDPOINT="ws://asgard-47bd5d56.thornode.io/569f6823761f718d22bfa465614bbf88"
+            const RPC_ENDPOINT="http://127.0.0.1:8899"
+            const RPC_WEBSOCKET_ENDPOINT="ws://127.0.0.1:8900"
+
+
             result = load({
                 library: "tpu_client", // path to the dynamic library file
                 funcName: 'send_tpu_tx', // the name of the function to call
