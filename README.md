@@ -53,12 +53,12 @@ To run the script you need to:
 ## TAKE PROFIT
 
 > [!NOTE]
-> By default, 200 %
+> By default, 200 % 
 
 ## STOP LOSS
 
 > [!NOTE]
-> By default, 50 % 
+> By default, 50 %
 
 ## AUTO SELL
 By default, auto sell is enabled. If you want to disable it, you need to:
