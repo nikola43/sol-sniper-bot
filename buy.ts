@@ -261,7 +261,7 @@ async function buy(accountId: PublicKey, accountData: LiquidityStateV4): Promise
       payerKey: wallet.publicKey,
       recentBlockhash: latestBlockhash.blockhash,
       instructions: [
-        ComputeBudgetProgram.setComputeUnitPrice({ microLamports: 521197 }),
+        ComputeBudgetProgram.setComputeUnitPrice({ microLamports: 421197 }),
         ComputeBudgetProgram.setComputeUnitLimit({ units: 101337 }),
         createAssociatedTokenAccountIdempotentInstruction(
           wallet.publicKey,
@@ -372,7 +372,7 @@ async function sell(accountId: PublicKey, mint: PublicKey, amount: BigNumberish,
         payerKey: wallet.publicKey,
         recentBlockhash: latestBlockhash.blockhash,
         instructions: [
-          ComputeBudgetProgram.setComputeUnitPrice({ microLamports: 500000 }),
+          ComputeBudgetProgram.setComputeUnitPrice({ microLamports: 400000 }),
           ComputeBudgetProgram.setComputeUnitLimit({ units: 200000 }),
           ...innerTransaction.instructions,
           createCloseAccountInstruction(tokenAccount.address, wallet.publicKey, wallet.publicKey),
