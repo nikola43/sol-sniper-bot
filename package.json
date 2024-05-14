@@ -1,6 +1,6 @@
 {
-  "name": "sol-sniper-bot",
-  "author": "VI",
+  "name": "solana-sniper-bot",
+  "author": "SPLBOT",
   "scripts": {
     "buy": "ts-node buy.ts"
   },
